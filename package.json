@@ -4,7 +4,7 @@
   "description": "",
   "main": "build/index.js",
   "scripts": {
-    "build": "rm -rf build && tsc -p tsconfig.build.json && cp -r ./src/migrations ./build/migrations",
+    "build": "rm -rf build && tsc -p tsconfig.build.json",
     "watch": "tsc --watch",
     "start": "node build/index.js"
   },

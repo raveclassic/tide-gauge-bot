@@ -2,13 +2,15 @@ import { Telegraf } from 'telegraf'
 import { env } from './env'
 import { getValue } from './data'
 import { addChat, deleteChat, getAllChats, getClient, updateChat } from './db'
+import { NumberFromString } from 'io-ts-types/NumberFromString'
+import { either } from 'fp-ts'
 
 const log = (...args: unknown[]) => console.log('[BOT]:', ...args)
 const error = (...args: unknown[]) => console.error('[BOT]:', ...args)
 
 export const runBot = async () => {
 	const client = await getClient()
-	let lastValue: string | undefined = undefined
+	let lastValue: number | undefined = undefined
 	let isInUpdateMode = false
 
 	const bot = new Telegraf(env.BOT_TOKEN)
@@ -25,14 +27,14 @@ export const runBot = async () => {
 		if (value !== undefined) {
 			lastValue = value
 			log('Sending...', value)
-			await ctx.reply(value)
+			await ctx.reply(`${value}`)
 		}
 		log('Done')
 	})
 
 	bot.command('update', async (ctx) => {
 		isInUpdateMode = true
-		await ctx.reply('Введите значение:')
+		await ctx.reply('Введите число:')
 	})
 
 	bot.command('stop', async (ctx) => {
@@ -52,7 +54,7 @@ export const runBot = async () => {
 		if (value !== undefined) {
 			lastValue = value
 			log('Sending...', value)
-			await ctx.reply(value)
+			await ctx.reply(`${value}`)
 		}
 		log('Done')
 	})
@@ -69,10 +71,16 @@ export const runBot = async () => {
 
 	bot.on('text', async (ctx) => {
 		if (isInUpdateMode && ctx.chat) {
-			isInUpdateMode = false
-			log('Updating...', ctx.chat.id, ctx.message?.text)
-			await updateChat(ctx.chat.id, ctx.message?.text, client)
-			await ctx.reply('Ok')
+			log('Processing new value...', ctx.message?.text)
+			const decoded = NumberFromString.decode(ctx.message?.text)
+			if (either.isLeft(decoded)) {
+				await ctx.reply('Неверное число')
+			} else {
+				isInUpdateMode = false
+				log('Updating...', ctx.chat.id, ctx.message?.text)
+				await updateChat(ctx.chat.id, decoded.right, client)
+				await ctx.reply('Ok')
+			}
 		}
 	})
 
@@ -80,13 +88,12 @@ export const runBot = async () => {
 
 	const loop = async () => {
 		const value = await getValue()
-		log('Iterating...', value)
 		if (value !== undefined && value !== lastValue) {
 			lastValue = value
 			log('Sending...', value)
 			for (const chat of await getAllChats(client, value)) {
 				try {
-					await bot.telegram.sendMessage(chat.id, value)
+					await bot.telegram.sendMessage(chat.id, `${value}`)
 				} catch (e) {
 					error(e)
 					await deleteChat(chat.id, client)

@@ -3,7 +3,7 @@ import { env } from './env'
 import path from 'path'
 import { Client } from 'pg'
 
-const MIGRATIONS_DIR = path.resolve(__dirname, './migrations')
+const MIGRATIONS_DIR = path.resolve(__dirname, '../migrations')
 
 const log = (...args: unknown[]) => console.log('[DB]:', ...args)
 
@@ -23,8 +23,8 @@ export const addChat = async (id: number, client: Client): Promise<void> => {
 	log('Done')
 }
 
-export const updateChat = async (id: number, value: string | undefined, client: Client): Promise<void> => {
-	const finalValue = value === '' || value === undefined ? 'null' : value
+export const updateChat = async (id: number, value: number | undefined, client: Client): Promise<void> => {
+	const finalValue = value === undefined ? 'null' : value
 	log('Updating chat...', id, finalValue)
 	await client.query(
 		`
@@ -50,12 +50,12 @@ export interface Chat {
 	readonly value: string | null
 }
 
-export const getAllChats = async (client: Client, value: string): Promise<readonly Chat[]> => {
+export const getAllChats = async (client: Client, value: number): Promise<readonly Chat[]> => {
 	log('Getting chats...')
 	const result = await client.query<Chat>(
 		`
 		SELECT id, value from chats
-		WHERE value IS NULL OR value = $1;
+		WHERE value IS NULL OR value >= $1;
 	`,
 		[value],
 	)
