@@ -55,7 +55,7 @@ export const getAllChats = async (client: Client, value: string): Promise<readon
 	const result = await client.query<Chat>(
 		`
 		SELECT id, value from chats
-		WHERE value IS NULL OR value = '$1';
+		WHERE value IS NULL OR value = $1;
 	`,
 		[value],
 	)
