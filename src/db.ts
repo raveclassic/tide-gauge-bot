@@ -19,23 +19,46 @@ export const getClient = async (): Promise<Client> => {
 
 export const addChat = async (id: number, client: Client): Promise<void> => {
 	log('Inserting chat...', id)
-	await client.query(`INSERT INTO chats(id) VALUES(${id}) ON CONFLICT (id) DO NOTHING;`)
+	await client.query(`INSERT INTO chats(id, value) VALUES($1, null) ON CONFLICT (id) DO NOTHING;`, [id])
+	log('Done')
+}
+
+export const updateChat = async (id: number, value: string | undefined, client: Client): Promise<void> => {
+	const finalValue = value === '' || value === undefined ? 'null' : value
+	log('Updating chat...', id, finalValue)
+	await client.query(
+		`
+		INSERT INTO chats (id, value)
+		VALUES ($1, $2)
+		ON CONFLICT (id) DO UPDATE
+			SET id = excluded.id,
+				value = excluded.value;
+	`,
+		[id, finalValue],
+	)
 	log('Done')
 }
 
 export const deleteChat = async (id: number, client: Client): Promise<void> => {
 	log('Delete chat...', id)
-	await client.query(`DELETE FROM chats WHERE id = ${id};`)
+	await client.query(`DELETE FROM chats WHERE id = $1;`, [id])
 	log('Done')
 }
 
 export interface Chat {
 	readonly id: number
+	readonly value: string | null
 }
 
-export const getAllChats = async (client: Client): Promise<readonly Chat[]> => {
+export const getAllChats = async (client: Client, value: string): Promise<readonly Chat[]> => {
 	log('Getting chats...')
-	const result = await client.query<Chat>(`SELECT id FROM chats;`)
+	const result = await client.query<Chat>(
+		`
+		SELECT id, value from chats
+		WHERE value IS NULL OR value = '$1';
+	`,
+		[value],
+	)
 	log('Done')
 	return result.rows
 }

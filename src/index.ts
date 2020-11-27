@@ -1,5 +1,5 @@
-import { newBot } from './bot'
+import { runBot } from './bot'
 import { runDummyServer } from './dummy-server'
 
 runDummyServer()
-void newBot().catch((e) => console.error(e))
+void runBot().catch((e) => console.error(e))
