@@ -24,7 +24,7 @@ export const addChat = async (id: number, client: Client): Promise<void> => {
 }
 
 export const updateChat = async (id: number, value: number | undefined, client: Client): Promise<void> => {
-	const finalValue = value === undefined ? 'null' : value
+	const finalValue = value === undefined ? 'NULL' : value
 	log('Updating chat...', id, finalValue)
 	await client.query(
 		`
