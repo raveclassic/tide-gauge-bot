@@ -80,6 +80,7 @@ export const runBot = async () => {
 
 	const loop = async () => {
 		const value = await getValue()
+		log('Iterating...', value)
 		if (value !== undefined && value !== lastValue) {
 			lastValue = value
 			log('Sending...', value)
