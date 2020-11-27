@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    ".",
+    "./**/*.ts",
+    ".eslintrc.js",
+    "*.json"
+  ],
+  "exclude": [
+    "package-lock.json"
+  ],
+  "compilerOptions": {
+    "noEmit": true
+  }
+}
