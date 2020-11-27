@@ -21,7 +21,7 @@ export const newBot = async () => {
 
 		const value = await getValue()
 
-		if (value !== undefined && value !== lastValue) {
+		if (value !== undefined) {
 			lastValue = value
 			log('Sending...', value)
 			await ctx.reply(value)
