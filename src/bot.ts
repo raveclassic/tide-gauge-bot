@@ -3,8 +3,6 @@ import { env } from './env'
 import { getValue } from './data'
 import { addChat, deleteChat, getAllChats, getClient, updateChat } from './db'
 
-const UPDATE_INTERVAL = 1000 * 60 * 5 // 5 minutes
-
 const log = (...args: unknown[]) => console.log('[BOT]:', ...args)
 const error = (...args: unknown[]) => console.error('[BOT]:', ...args)
 
@@ -103,5 +101,5 @@ export const runBot = async () => {
 		} catch (e) {
 			error(e)
 		}
-	}, UPDATE_INTERVAL)
+	}, env.UPDATE_INTERVAL)
 }
