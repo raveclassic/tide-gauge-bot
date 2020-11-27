@@ -1,7 +1,7 @@
 import { config } from 'dotenv'
 import { strict, string, Type } from 'io-ts'
 import { isLeft } from 'fp-ts/Either'
-import { NumberFromString } from 'io-ts-types'
+import { NumberFromString } from 'io-ts-types/NumberFromString'
 
 export interface Env {
 	readonly BOT_TOKEN: string
